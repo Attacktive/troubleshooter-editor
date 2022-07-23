@@ -2,15 +2,30 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
-import { Container, Row, Col } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
+import { useRef } from "react";
 
 const Home: NextPage = () => {
+	const fileForm = useRef<HTMLFormElement>();
+	const temporaryOutput = useRef<HTMLTextAreaElement>(null);
+
 	function upload() {
-		alert("upload");
+		const formData = new FormData(fileForm.current);
+
+		fetch(
+			"/files/upload",
+			{
+				method: "post",
+				body: formData
+			}
+		).then(response => {
+			console.log(response);
+			temporaryOutput.current!.value = response.toString();
+		}).catch(error => console.log(error));
 	}
 
 	function download() {
-		alert("download");
+		alert("TODO: download");
 	}
 
 	return (
@@ -29,7 +44,7 @@ const Home: NextPage = () => {
 						</h1>
 					</Col>
 				</Row>
-				<Row as={"form"} id={"file-form"} className={"mt-4"}>
+				<Row as={"form"} ref={fileForm} className={"mt-4"}>
 					<Col xs={2}>
 						<input type={"file"} name={"file"} accept={".sav,.bak"}/>
 					</Col>
@@ -42,7 +57,7 @@ const Home: NextPage = () => {
 				</Row>
 				<Row className={"mt-4"}>
 					<Col>
-						<textarea id={"temp-output"} readOnly={true} style={{ width: "100%", minHeight: "300px" }}/>
+						<textarea ref={temporaryOutput} readOnly={true} style={{ width: "100%", minHeight: "300px" }}/>
 					</Col>
 				</Row>
 			</Container>
